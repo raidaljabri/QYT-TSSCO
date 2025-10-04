@@ -479,15 +479,15 @@ export default function QuoteForm({ onSuccess, company }) {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-lg">
                 <span>المجموع الفرعي:</span>
-                <span data-testid="subtotal-amount">
-                  {formData.subtotal.toLocaleString('ar-SA')} ريال
+                <span className="numbers-en" data-testid="subtotal-amount">
+                  {formData.subtotal.toLocaleString('en-US')} ريال
                 </span>
               </div>
               
               <div className="flex justify-between items-center text-lg">
                 <span>ضريبة القيمة المضافة (15%):</span>
-                <span data-testid="tax-amount">
-                  {formData.tax_amount.toLocaleString('ar-SA')} ريال
+                <span className="numbers-en" data-testid="tax-amount">
+                  {formData.tax_amount.toLocaleString('en-US')} ريال
                 </span>
               </div>
               
@@ -495,8 +495,8 @@ export default function QuoteForm({ onSuccess, company }) {
               
               <div className="flex justify-between items-center text-xl font-bold text-green-600">
                 <span>المبلغ الإجمالي:</span>
-                <span data-testid="total-amount">
-                  {formData.total_amount.toLocaleString('ar-SA')} ريال
+                <span className="numbers-en" data-testid="total-amount">
+                  {formData.total_amount.toLocaleString('en-US')} ريال
                 </span>
               </div>
             </div>
