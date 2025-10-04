@@ -1,51 +1,107 @@
-import { useEffect } from "react";
-import "@/App.css";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 import axios from "axios";
+import "@/App.css";
+
+// Pages
+import QuotesList from "@/components/QuotesList";
+import QuoteForm from "@/components/QuoteForm";
+import QuoteView from "@/components/QuoteView";
+import CompanySettings from "@/components/CompanySettings";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+function App() {
+  const [quotes, setQuotes] = useState([]);
+  const [company, setCompany] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchQuotes();
+    fetchCompanyInfo();
+  }, []);
+
+  const fetchQuotes = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.get(`${API}/quotes`);
+      setQuotes(response.data);
+    } catch (error) {
+      console.error("Error fetching quotes:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const fetchCompanyInfo = async () => {
+    try {
+      const response = await axios.get(`${API}/company`);
+      setCompany(response.data);
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <div className="App">
+    <div className="App min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route 
+            path="/" 
+            element={
+              <QuotesList 
+                quotes={quotes} 
+                onQuotesChange={fetchQuotes}
+                company={company}
+              />
+            } 
+          />
+          <Route 
+            path="/new" 
+            element={
+              <QuoteForm 
+                onSuccess={fetchQuotes}
+                company={company}
+              />
+            } 
+          />
+          <Route 
+            path="/edit/:id" 
+            element={
+              <QuoteForm 
+                onSuccess={fetchQuotes}
+                company={company}
+              />
+            } 
+          />
+          <Route 
+            path="/view/:id" 
+            element={
+              <QuoteView 
+                company={company}
+              />
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <CompanySettings 
+                company={company}
+                onCompanyUpdate={fetchCompanyInfo}
+              />
+            } 
+          />
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </div>
   );
