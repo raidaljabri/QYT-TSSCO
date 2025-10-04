@@ -432,11 +432,17 @@ export default function QuoteForm({ onSuccess, company }) {
                   <Label htmlFor={`unit-price-${index}`}>سعر الوحدة</Label>
                   <Input
                     id={`unit-price-${index}`}
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    type="text"
                     value={item.unit_price}
-                    onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow numbers and decimal points
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        handleItemChange(index, 'unit_price', value === '' ? 0 : parseFloat(value) || 0);
+                      }
+                    }}
+                    className="numbers-en"
+                    placeholder="0.00"
                     data-testid={`item-unit-price-${index}`}
                   />
                 </div>
