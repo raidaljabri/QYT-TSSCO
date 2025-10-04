@@ -191,8 +191,8 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">المبلغ الإجمالي:</span>
-                <span className="text-lg font-bold text-green-600">
-                  {quote.total_amount.toLocaleString('ar-SA')} ريال
+                <span className="text-lg font-bold text-green-600 numbers-en">
+                  {quote.total_amount.toLocaleString('en-US')} ريال
                 </span>
               </div>
               
