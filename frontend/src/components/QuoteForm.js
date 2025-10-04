@@ -402,11 +402,17 @@ export default function QuoteForm({ onSuccess, company }) {
                   <Label htmlFor={`quantity-${index}`}>الكمية</Label>
                   <Input
                     id={`quantity-${index}`}
-                    type="number"
-                    min="0"
-                    step="0.01"
+                    type="text"
                     value={item.quantity}
-                    onChange={(e) => handleItemChange(index, 'quantity', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow numbers and decimal points
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        handleItemChange(index, 'quantity', value === '' ? 0 : parseFloat(value) || 0);
+                      }
+                    }}
+                    className="numbers-en"
+                    placeholder="0.00"
                     data-testid={`item-quantity-${index}`}
                   />
                 </div>
