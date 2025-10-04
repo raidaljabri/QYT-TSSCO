@@ -449,8 +449,8 @@ export default function QuoteForm({ onSuccess, company }) {
                 
                 <div className="md:col-span-2">
                   <Label>السعر الإجمالي</Label>
-                  <div className="h-10 flex items-center px-3 bg-gray-100 rounded-md text-sm font-medium">
-                    {item.total_price.toLocaleString('ar-SA')}
+                  <div className="h-10 flex items-center px-3 bg-gray-100 rounded-md text-sm font-medium numbers-en">
+                    {item.total_price.toLocaleString('en-US')}
                   </div>
                 </div>
                 
