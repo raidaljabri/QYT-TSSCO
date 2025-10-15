@@ -132,6 +132,15 @@ export default function QuoteView({ company }) {
             <FileSpreadsheet className="h-4 w-4 ml-2" />
             تحميل Excel
           </Button>
+          
+          <Button
+            variant="outline"
+            onClick={() => handleExport('word')}
+            data-testid="export-word-button"
+          >
+            <FileText className="h-4 w-4 ml-2" />
+            تحميل Word
+          </Button>
         </div>
       </div>
 
