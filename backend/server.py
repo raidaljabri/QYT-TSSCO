@@ -1057,8 +1057,12 @@ async def export_quote_word(quote_id: str):
     doc.save(buffer)
     buffer.seek(0)
     
+    timestamp = int(time.time())
     headers = {
-        'Content-Disposition': f'attachment; filename="quote_{quote_obj.quote_number}.docx"'
+        'Content-Disposition': f'attachment; filename="quote_{quote_obj.quote_number}_v{timestamp}.docx"',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
     }
     
     return StreamingResponse(
