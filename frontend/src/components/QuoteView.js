@@ -124,8 +124,13 @@ export default function QuoteView({ company }) {
           العودة إلى القائمة
         </Button>
         <div className="flex space-x-3 space-x-reverse">
-          <Button variant="outline" onClick={handleExport}>
-            تحميل PDF
+          <Button
+            variant="outline"
+            onClick={() => handleExport('excel')}
+            data-testid="export-excel-button"
+          >
+            <FileSpreadsheet className="h-4 w-4 ml-2" />
+            تحميل Excel
           </Button>
         </div>
       </div>
