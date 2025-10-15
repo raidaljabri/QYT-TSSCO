@@ -58,57 +58,89 @@ export default function QuoteView({ company }) {
   const handleExport = async (type = 'pdf') => {
     if (!printRef.current) return;
 
-    try {
-      const element = printRef.current;
-      const fileName = `Quote_${quote?.quote_number || "draft"}.pdf`;
+    if (type === 'pdf') {
+      try {
+        const element = printRef.current;
+        const fileName = `Quote_${quote?.quote_number || "draft"}.pdf`;
 
-      const opt = {
-        margin: [16, 16, 16, 16], // الهوامش العليا والسفلى والجانبية
-        filename: fileName,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          scrollX: 0,
-          scrollY: 0,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "p",
-        },
-        pagebreak: {
-          mode: ["avoid-all", "css", "legacy"],
-          before: ".page-break",
-          after: ".page-break",
-          avoid: "tr",
-        },
-      };
+        const opt = {
+          margin: [16, 16, 16, 16], // الهوامش العليا والسفلى والجانبية
+          filename: fileName,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            scrollX: 0,
+            scrollY: 0,
+          },
+          jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "p",
+          },
+          pagebreak: {
+            mode: ["avoid-all", "css", "legacy"],
+            before: ".page-break",
+            after: ".page-break",
+            avoid: "tr",
+          },
+        };
 
-      // إنشاء PDF مع فراغ 10مم بين الصفحات
-      const pdf = html2pdf()
-        .set(opt)
-        .from(element)
-        .toPdf()
-        .get("pdf")
-        .then((pdfObj) => {
-          const totalPages = pdfObj.internal.getNumberOfPages();
-          for (let i = 1; i <= totalPages; i++) {
-            pdfObj.setPage(i);
-            if (i < totalPages) {
-              pdfObj.addPage();
-              pdfObj.setPage(i + 1);
-              pdfObj.text("", 10, pdfObj.internal.pageSize.getHeight() - 10); // فراغ بمقدار 10مم
+        // إنشاء PDF مع فراغ 10مم بين الصفحات
+        const pdf = html2pdf()
+          .set(opt)
+          .from(element)
+          .toPdf()
+          .get("pdf")
+          .then((pdfObj) => {
+            const totalPages = pdfObj.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+              pdfObj.setPage(i);
+              if (i < totalPages) {
+                pdfObj.addPage();
+                pdfObj.setPage(i + 1);
+                pdfObj.text("", 10, pdfObj.internal.pageSize.getHeight() - 10); // فراغ بمقدار 10مم
+              }
             }
-          }
-        });
+          });
 
-      await pdf.save();
-      toast.success("تم تحميل عرض السعر كـ PDF");
-    } catch (error) {
-      toast.error("حدث خطأ أثناء إنشاء PDF");
-      console.error("Error creating PDF:", error);
+        await pdf.save();
+        toast.success("تم تحميل عرض السعر كـ PDF");
+      } catch (error) {
+        toast.error("حدث خطأ أثناء إنشاء PDF");
+        console.error("Error creating PDF:", error);
+      }
+    } else if (type === 'excel') {
+      try {
+        const response = await axios.get(`${API}/quotes/${id}/export/excel`, { responseType: "blob" });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `quote_${quote.quote_number}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        toast.success("تم تحميل عرض السعر كـ Excel");
+      } catch (error) {
+        toast.error("حدث خطأ أثناء تحميل الملف");
+        console.error("Error exporting Excel:", error);
+      }
+    } else if (type === 'word') {
+      try {
+        const response = await axios.get(`${API}/quotes/${id}/export/word`, { responseType: "blob" });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `quote_${quote.quote_number}.docx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        toast.success("تم تحميل عرض السعر كـ Word");
+      } catch (error) {
+        toast.error("حدث خطأ أثناء تحميل الملف");
+        console.error("Error exporting Word:", error);
+      }
     }
   };
 
