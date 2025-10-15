@@ -318,19 +318,19 @@ export default function QuoteView({ company }) {
           <div className="w-80 space-y-3 text-sm">
             <div className="flex justify-between py-2 border-b">
               <span>المجموع الفرعي:</span>
-              <span className="font-medium">
+              <span className="font-medium numbers-en">
                 {Number(quote.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
             <div className="flex justify-between py-2 border-b">
               <span>الضريبة (15%):</span>
-              <span className="font-medium">
+              <span className="font-medium numbers-en">
                 {Number(quote.tax_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
             <div className="flex justify-between py-3 text-lg font-bold text-green-600 border-t-2 border-gray-400">
               <span>الإجمالي:</span>
-              <span>
+              <span className="numbers-en">
                 {Number(quote.total_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
