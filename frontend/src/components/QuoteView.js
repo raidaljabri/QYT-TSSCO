@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
