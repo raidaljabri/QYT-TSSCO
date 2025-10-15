@@ -55,14 +55,29 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
       const link = document.createElement('a');
       link.href = url;
       
-      const extension = format === 'excel' ? 'xlsx' : 'pdf';
+      let extension;
+      if (format === 'excel') {
+        extension = 'xlsx';
+      } else if (format === 'word') {
+        extension = 'docx';
+      } else {
+        extension = 'pdf';
+      }
       link.setAttribute('download', `quote_${quoteId}.${extension}`);
       
       document.body.appendChild(link);
       link.click();
       link.remove();
       
-      toast.success(`تم تحميل عرض السعر كـ ${format === 'excel' ? 'Excel' : 'PDF'}`);
+      let formatName;
+      if (format === 'excel') {
+        formatName = 'Excel';
+      } else if (format === 'word') {
+        formatName = 'Word';
+      } else {
+        formatName = 'PDF';
+      }
+      toast.success(`تم تحميل عرض السعر كـ ${formatName}`);
     } catch (error) {
       toast.error("حدث خطأ أثناء تحميل الملف");
       console.error("Error exporting quote:", error);
