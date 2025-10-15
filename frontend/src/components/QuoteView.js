@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import html2pdf from "html2pdf.js";
 
 const QuoteView = () => {
