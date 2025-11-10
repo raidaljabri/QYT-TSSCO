@@ -58,10 +58,6 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
       let extension;
       if (format === 'excel') {
         extension = 'xlsx';
-      } else if (format === 'word') {
-        extension = 'docx';
-      } else {
-        extension = 'pdf';
       }
       link.setAttribute('download', `quote_${quoteId}.${extension}`);
       
@@ -72,11 +68,7 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
       let formatName;
       if (format === 'excel') {
         formatName = 'Excel';
-      } else if (format === 'word') {
-        formatName = 'Word';
-      } else {
-        formatName = 'PDF';
-      }
+      } 
       toast.success(`تم تحميل عرض السعر كـ ${formatName}`);
     } catch (error) {
       toast.error("حدث خطأ أثناء تحميل الملف");
@@ -265,10 +257,10 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleExport(quote.id, 'pdf')}
-                    data-testid={`export-pdf-${quote.id}`}
+                    onClick={() => handleExport(quote.id, 'word')}
+                    data-testid={`export-word-${quote.id}`}
                   >
-                    <FileText className="h-4 w-4" />
+                    <FileText className="h-4 w-4" /> {/* أيقونة Word */}
                   </Button>
                   <Button
                     variant="outline"
@@ -277,14 +269,6 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
                     data-testid={`export-excel-${quote.id}`}
                   >
                     <FileSpreadsheet className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleExport(quote.id, 'word')}
-                    data-testid={`export-word-${quote.id}`}
-                  >
-                    <FileText className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

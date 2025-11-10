@@ -35,13 +35,21 @@ db = client[os.environ['DB_NAME']]
 # Create the main app without a prefix
 app = FastAPI()
 
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
-
-# Upload directory
+# تحديد مجلد المشروع
+ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+# إنشاء الراوتر مع بادئة /api
+api_router = APIRouter(prefix="/api")
+
+# الآن نعرف الروت بعد إنشاء الراوتر
+@api_router.get("/test")
+def test():
+    return {"message": "API is working!"}
+
+# ربط الراوتر بالتطبيق
+app.include_router(api_router)
 # Models
 class CompanyInfo(BaseModel):
     name_ar: str = "شركة مثلث الأنظمة المميزة للمقاولات"
