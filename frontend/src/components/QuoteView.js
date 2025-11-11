@@ -37,7 +37,6 @@ export default function QuoteView({ company }) {
     }
   };
 
-  // دالة لتحويل اسم العميل ليصبح صالح كاسم ملف
   const sanitizeFileName = (str) => {
     if (!str) return "customer";
     return String(str)
@@ -68,6 +67,7 @@ export default function QuoteView({ company }) {
     onAfterPrint: () => toast.success("تمت طباعة عرض السعر"),
   });
 
+  // دالة تصدير PDF عالي الدقة
   const handleExport = async () => {
     if (!printRef.current || !quote) return;
 
@@ -80,10 +80,11 @@ export default function QuoteView({ company }) {
         filename: fileName,
         image: { type: "jpeg", quality: 1 },
         html2canvas: {
-          scale: 2,
+          scale: 4, // زيادة الدقة للنصوص والصور
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
+          logging: true,
         },
         jsPDF: {
           unit: "mm",
@@ -93,15 +94,15 @@ export default function QuoteView({ company }) {
         pagebreak: {
           mode: ["css", "legacy"],
           before: ".page-break",
-          avoid: [".avoid-break", "tr", "thead", "tfoot"],
+          avoid: [".avoid-break", "tr", "thead", "tfoot", "img"],
         },
       };
 
       await html2pdf().set(opt).from(element).save();
-      toast.success(`تم تحميل عرض السعر PDF باسم: ${fileName}`);
+      toast.success(`تم تحميل عرض السعر PDF عالي الدقة باسم: ${fileName}`);
     } catch (error) {
-      toast.error("حدث خطأ أثناء إنشاء PDF");
-      console.error("Error creating PDF:", error);
+      toast.error("حدث خطأ أثناء إنشاء PDF عالي الدقة");
+      console.error("Error creating high-res PDF:", error);
     }
   };
 
@@ -161,7 +162,6 @@ export default function QuoteView({ company }) {
         ref={printRef}
         className="bg-white p-4 shadow-lg rounded-lg print:shadow-none print:rounded-none print:w-[210mm] print:mx-auto print-content"
       >
-        {/* CSS الخطوط وتصغير الحجم */}
         <style>
           {`
           @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -170,22 +170,11 @@ export default function QuoteView({ company }) {
             font-size: 12px !important;
             line-height: 1.2 !important;
           }
-          .numbers-en {
-            font-family: Arial, sans-serif !important;
-          }
-          .print-content h1 {
-            font-size: 18px !important;
-          }
-          .print-content h3 {
-            font-size: 14px !important;
-          }
+          .numbers-en { font-family: Arial, sans-serif !important; }
+          .print-content h1 { font-size: 18px !important; }
+          .print-content h3 { font-size: 14px !important; }
           .print-content table th, 
-          .print-content table td {
-            font-size: 11px !important;
-            padding: 4px 6px !important;
-            direction: auto;
-            text-align: start;
-          }
+          .print-content table td { font-size: 11px !important; padding: 4px 6px !important; text-align: start; }
           @media print {
             thead { display: table-header-group; }
             tfoot { display: table-footer-group; }
@@ -251,17 +240,37 @@ export default function QuoteView({ company }) {
         </div>
 
         {/* Project details */}
-        <div className="mb-4 avoid-break">
-          <h3 className="text-purple-600 font-semibold mb-1">تفاصيل المشروع / Project details</h3>
-          <div className="bg-gray-50 p-2 rounded">
-            <p className="font-medium">{quote.project_description}</p>
-            {quote.location && <p className="font-medium mt-1">الموقع: {quote.location}</p>}
+         <div className="mb-6 avoid-break">
+          <h3
+            className="text-purple-600 font-semibold mb-4 border-b pb-2"
+            dir={/[\u0600-\u06FF]/.test(quote.project_description || "") ? "rtl" : "ltr"}
+          >
+              تفاصيل المشروع / Project details
+             </h3>
+
+            <div
+             className="bg-gray-50 p-3 rounded"
+             dir={/[\u0600-\u06FF]/.test(quote.project_description || "") ? "rtl" : "ltr"}
+              style={{
+                textAlign: /[\u0600-\u06FF]/.test(quote.project_description || "") ? "right" : "left",
+             }}
+           >
+           <p className="font-medium break-words">{quote.project_description}</p>
+
+          {quote.location && (
+             <p className="font-medium mt-2 break-words">
+               { /[\u0600-\u06FF]/.test(quote.location)
+                ? `الموقع: ${quote.location}`
+               : `Location: ${quote.location}`
+                  }
+             </p>
+           )}
           </div>
         </div>
 
         {/* Price table */}
         <div className="mb-4">
-          <h3 className="font-semibold mb-1 text-sm">جدول الأسعار / Price table</h3>
+          <h3 className="font-semibold mb-3 text-sm">جدول الأسعار / Price table </h3>
           <div className="overflow-x-auto avoid-break">
             <table className="w-full border border-gray-300 avoid-break">
               <thead>
@@ -295,23 +304,23 @@ export default function QuoteView({ company }) {
         </div>
 
         {/* Totals */}
-        <div className="flex justify-end mb-4 avoid-break">
-          <div className="w-64 space-y-1 text-xs">
-            <div className="flex justify-between py-1 border-b">
-              <span>المجموع الفرعي:</span>
-              <span className="font-medium numbers-en">
+        <div className="flex justify-end mb-6 avoid-break">
+          <div className="w-80 space-y-3 text-base">
+            <div className="flex justify-between py-2 border-b">
+              <span className="text-lg">المجموع الفرعي:</span>
+              <span className="font-medium numbers-en text-lg">
                 {Number(quote.subtotal).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
-            <div className="flex justify-between py-1 border-b">
-              <span>الضريبة (15%):</span>
-              <span className="font-medium numbers-en">
+            <div className="flex justify-between py-2 border-b">
+              <span className="text-lg">الضريبة (15%):</span>
+              <span className="font-medium numbers-en text-lg">
                 {Number(quote.tax_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
-            <div className="flex justify-between py-1 text-green-600 font-bold border-t-2 border-gray-400">
-              <span>الإجمالي:</span>
-              <span className="numbers-en">
+            <div className="flex justify-between py-3 text-green-600 font-bold border-t-4 border-gray-400">
+              <span className="text-xl">الإجمالي:</span>
+              <span className="numbers-en text-xl">
                 {Number(quote.total_amount).toLocaleString("en-US", { minimumFractionDigits: 2 })} ريال
               </span>
             </div>
@@ -321,12 +330,17 @@ export default function QuoteView({ company }) {
         {/* Terms */}
         {quote.notes && (
           <div className="mb-4 avoid-break">
-            <h3 className="font-semibold mb-1 text-sm">الأحكام والشروط / Terms and conditions</h3>
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
-              <p className="text-xs whitespace-pre-wrap break-words" dir="auto" style={{ textAlign: "start" }}>
-                {quote.notes}
-              </p>
-            </div>
+            <h3 className="font-semibold mb-3 text-sm">الأحكام والشروط / Terms and conditions</h3>
+            <div className="bg-white border border-gray-200 rounded p-2">
+             <p
+              className="text-xs whitespace-pre-wrap break-words"
+             dir={/[\u0600-\u06FF]/.test(quote.notes || "") ? "rtl" : "ltr"}
+             style={{ textAlign: /[\u0600-\u06FF]/.test(quote.notes || "") ? "right" : "left" }}
+             >
+              {quote.notes}
+           </p>
+         </div>
+
           </div>
         )}
 
