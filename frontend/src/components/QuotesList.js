@@ -28,8 +28,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API = import.meta.env.VITE_API_URL; // للـ API
+const API_BASE = import.meta.env.VITE_API_BASE_URL; // للصور
+
+
+
 
 export default function QuotesList({ quotes, onQuotesChange, company }) {
   const navigate = useNavigate();
@@ -92,7 +95,7 @@ export default function QuotesList({ quotes, onQuotesChange, company }) {
           <div className="flex items-center space-x-4 space-x-reverse">
             {company?.logo_path && (
               <img 
-                src={`${BACKEND_URL}${company.logo_path}`}
+                src={`${API}${company.logo_path}`}
                 alt="شعار الشركة"
                 className="h-20 w-20 object-contain"
               />

@@ -10,8 +10,10 @@ import QuoteForm from "@/components/QuoteForm";
 import QuoteView from "@/components/QuoteView";
 import CompanySettings from "@/components/CompanySettings";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API = import.meta.env.VITE_API_URL; // للـ API
+const API_BASE = import.meta.env.VITE_API_BASE_URL; // للصور
+
+
 
 function App() {
   const [quotes, setQuotes] = useState([]);

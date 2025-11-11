@@ -15,8 +15,10 @@ import {
 import axios from "axios";
 import { toast } from "sonner";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API = import.meta.env.VITE_API_URL; // للـ API
+const API_BASE = import.meta.env.VITE_API_BASE_URL; // للصور
+
+
 
 export default function CompanySettings({ company, onCompanyUpdate }) {
   const navigate = useNavigate();
@@ -147,7 +149,8 @@ export default function CompanySettings({ company, onCompanyUpdate }) {
             {formData.logo_path && (
               <div className="flex justify-center">
                 <img 
-                  src={`${BACKEND_URL}${formData.logo_path}`}
+                  src={`${API
+}${formData.logo_path}`}
                   alt="شعار الشركة"
                   className="h-32 w-32 object-contain border rounded-lg bg-white p-2"
                   data-testid="company-logo"

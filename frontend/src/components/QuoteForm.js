@@ -11,8 +11,10 @@ import { ArrowRight, Plus, Trash2, Save, Calculator } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const API = import.meta.env.VITE_API_URL; // للـ API
+const API_BASE = import.meta.env.VITE_API_BASE_URL; // للصور
+
+
 
 export default function QuoteForm({ onSuccess, company }) {
   const navigate = useNavigate();
@@ -96,7 +98,7 @@ export default function QuoteForm({ onSuccess, company }) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4 space-x-reverse">
-                {company?.logo_path && <img src={`${BACKEND_URL}${company.logo_path}`} alt="شعار الشركة" className="h-12 w-12 object-contain" />}
+                {company?.logo_path && <img src={`${API}${company.logo_path}`} alt="شعار الشركة" className="h-12 w-12 object-contain" />}
                 <div><h2 className="text-xl font-bold text-gray-900">{company?.name_ar}</h2><p className="text-sm text-gray-600">{company?.name_en}</p></div>
               </div>
               <div className="text-right text-sm text-gray-600"><p>الرقم الضريبي: {company?.tax_number}</p><p>{company?.city}, {company?.country}</p></div>
