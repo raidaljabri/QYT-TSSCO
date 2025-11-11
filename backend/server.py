@@ -24,6 +24,24 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 import json
 
+
+app = FastAPI()  # <-- أول شيء، تنشئ الـ app
+
+# إضافة CORS middleware مباشرة بعد إنشاء app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # كل النطاقات مسموح لها
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# بعدين تضيف الراوتر أو الـ routes
+@app.get("/")
+async def root():
+    return {"message": "API is working"}
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -33,24 +51,20 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI()
+
 
 # تحديد مجلد المشروع
 ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# إنشاء الراوتر مع بادئة /api
-api_router = APIRouter(prefix="/api")
+
+
 
 # الآن نعرف الروت بعد إنشاء الراوتر
 @api_router.get("/test")
 def test():
     return {"message": "API is working!"}
-
-@app.get("/")
-def root():
-    return {"message": "API is working on the root!"}
 
 
 
@@ -1087,15 +1101,6 @@ async def export_quote_word(quote_id: str):
         headers=headers
     )
 
-# Include the router in the main app
-app.include_router(api_router)
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["https://qyt-tssco-sch2.vercel.app"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Configure logging
 logging.basicConfig(
