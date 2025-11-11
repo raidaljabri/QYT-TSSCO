@@ -52,12 +52,12 @@ def test():
 def root():
     return {"message": "API is working on the root!"}
 
-app.include_router(api_router)
+
 
 
 
 # ربط الراوتر بالتطبيق
-app.include_router(api_router)
+
 # Models
 class CompanyInfo(BaseModel):
     name_ar: str = "شركة مثلث الأنظمة المميزة للمقاولات"
@@ -1089,7 +1089,6 @@ async def export_quote_word(quote_id: str):
 
 # Include the router in the main app
 app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -1097,6 +1096,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Configure logging
 logging.basicConfig(
