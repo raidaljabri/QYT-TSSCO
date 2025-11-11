@@ -10,9 +10,10 @@ import QuoteForm from "@/components/QuoteForm";
 import QuoteView from "@/components/QuoteView";
 import CompanySettings from "@/components/CompanySettings";
 
-const API = import.meta.env.VITE_API_URL; // للـ API
-const API_BASE = import.meta.env.VITE_API_BASE_URL; // للصور
 
+
+const API = process.env.REACT_APP_API_URL;      // للـ API
+const API_BASE = process.env.REACT_APP_API_BASE_URL; // للصور
 
 
 function App() {
