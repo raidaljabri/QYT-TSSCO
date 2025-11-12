@@ -3,6 +3,7 @@ from models import QuoteModel  # نموذج البيانات
 from database import quotes_collection  # الاتصال بـ MongoDB
 from bson import ObjectId
 
+
 api_router = APIRouter(prefix="/api")
 
 # اختبار الـ API

@@ -48,14 +48,17 @@ origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()
 if not origins:
     origins = ["*"]  # fallback عام
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://qyt-tssco.onrender.com"],  # فقط هذا الدومين مسموح
+    allow_origins=[
+        "https://qyt-tssco.onrender.com",  # الدومين على Render
+        "http://127.0.0.1:8000"            # للوصول المحلي
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 # -----------------------------
