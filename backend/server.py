@@ -1,28 +1,9 @@
-from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException, Form
-from fastapi.responses import FileResponse, StreamingResponse
-from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
 import os
-import logging
-import uuid
-from datetime import datetime, timezone
-import shutil
-from openpyxl import Workbook
-from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER
-import json
 
 # -----------------------------
 # تحميل المتغيرات من .env
@@ -46,25 +27,15 @@ origins_env = os.getenv("CORS_ORIGINS", "")
 origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
 
 if not origins:
-    # في حال لم يتم تحديد أي نطاق في .env
-    origins = ["*"]
+    origins = ["*"]  # fallback عام
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,  # للسماح بإرسال Cookies و Authorization headers
+    allow_credentials=True,      # للسماح بإرسال Cookies و Authorization
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# -----------------------------
-# إنشاء Router عام
-# -----------------------------
-api_router = APIRouter(prefix="/api")
-
-@api_router.get("/")
-async def root():
-    return {"message": "✅ QYTR API is working correctly"}
 
 # -----------------------------
 # إعداد اتصال MongoDB
@@ -76,6 +47,37 @@ if not mongo_url:
 db_name = os.getenv("DB_NAME", "QYTR")
 client = AsyncIOMotorClient(mongo_url)
 db = client[db_name]
+
+# -----------------------------
+# إنشاء Router للـ API
+# -----------------------------
+api_router = APIRouter(prefix="/api")
+
+# Test route
+@api_router.get("/")
+async def root():
+    return {"message": "API is working on the root!"}
+
+# Example: get company info
+@api_router.get("/company")
+async def get_company():
+    try:
+        company_data = await db.company.find_one({}, {"_id": 0})  # excluding _id
+        if not company_data:
+            return {"message": "No company info found"}
+        return company_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Example: get quotes
+@api_router.get("/quotes")
+async def get_quotes():
+    try:
+        quotes_cursor = db.quotes.find({}, {"_id": 0})
+        quotes_list = await quotes_cursor.to_list(length=100)  # limit 100
+        return quotes_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # -----------------------------
 # تسجيل الراوتر داخل التطبيق
