@@ -1,13 +1,13 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import FileResponse, StreamingResponse
-from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
+import os
+import logging
 import uuid
 from datetime import datetime, timezone
 import shutil
@@ -24,33 +24,70 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 import json
 
+# -----------------------------
+# تحميل المتغيرات من .env
+# -----------------------------
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / ".env")
 
-app = FastAPI()  # <-- أول شيء، تنشئ الـ app
+# -----------------------------
+# إعداد تطبيق FastAPI
+# -----------------------------
+app = FastAPI(
+    title="QYTR API",
+    description="Backend API for QYTR project",
+    version="1.0.0",
+)
 
-# إضافة CORS middleware مباشرة بعد إنشاء app
+# -----------------------------
+# إعداد CORS (يقرأ من .env)
+# -----------------------------
+origins_env = os.getenv("CORS_ORIGINS", "")
+origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
+if not origins:
+    # في حال لم يتم تحديد أي نطاق في .env
+    origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # كل النطاقات مسموح لها
-    allow_credentials=True,
+    allow_origins=origins,
+    allow_credentials=True,  # للسماح بإرسال Cookies و Authorization headers
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# -----------------------------
+# إنشاء Router عام
+# -----------------------------
+api_router = APIRouter(prefix="/api")
 
-# بعدين تضيف الراوتر أو الـ routes
-@app.get("/")
+@api_router.get("/")
 async def root():
-    return {"message": "API is working"}
+    return {"message": "✅ QYTR API is working correctly"}
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+# -----------------------------
+# إعداد اتصال MongoDB
+# -----------------------------
+mongo_url = os.getenv("MONGO_URL")
+if not mongo_url:
+    raise ValueError("❌ لم يتم العثور على MONGO_URL في ملف .env")
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+db_name = os.getenv("DB_NAME", "QYTR")
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
-# Create the main app without a prefix
+# -----------------------------
+# تسجيل الراوتر داخل التطبيق
+# -----------------------------
+app.include_router(api_router)
+
+# -----------------------------
+# نقطة تشغيل السيرفر (محلي فقط)
+# -----------------------------
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("server:app", host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
 
 
 # تحديد مجلد المشروع
@@ -59,7 +96,8 @@ UPLOAD_DIR = ROOT_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
-
+# إنشاء الراوتر مع بادئة /api
+api_router = APIRouter(prefix="/api")
 
 # الآن نعرف الروت بعد إنشاء الراوتر
 @api_router.get("/test")
@@ -1112,3 +1150,4 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
