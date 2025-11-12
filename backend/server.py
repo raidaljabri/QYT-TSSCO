@@ -53,7 +53,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://qyt-tssco.onrender.com",  # الدومين على Render
-        "http://127.0.0.1:8000"            # للوصول المحلي
+        "http://127.0.0.1:8000/api/"
+          # للوصول المحلي
     ],
     allow_credentials=True,
     allow_methods=["*"],
