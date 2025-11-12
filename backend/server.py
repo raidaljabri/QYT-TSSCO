@@ -1,9 +1,26 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
+from reportlab.pdfgen import canvas as pdf_canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib import colors as pdf_colors
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.utils import ImageReader
+from openpyxl import Workbook
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any
 from pathlib import Path
+from io import BytesIO
+from datetime import datetime, timezone
+import textwrap
+import logging
+import shutil
 import os
+import uuid
 
 # -----------------------------
 # تحميل المتغيرات من .env
@@ -13,12 +30,14 @@ load_dotenv(ROOT_DIR / ".env")
 
 # -----------------------------
 # إعداد تطبيق FastAPI
-# -----------------------------
 app = FastAPI(
     title="QYTR API",
     description="Backend API for QYTR project",
     version="1.0.0",
+    docs_url="/api/docs",       # هذا يجعل Swagger UI على /api/docs
+    redoc_url="/api/redoc"      # هذا يجعل ReDoc على /api/redoc
 )
+
 
 # -----------------------------
 # إعداد CORS (يقرأ من .env)
@@ -31,11 +50,13 @@ if not origins:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,      # للسماح بإرسال Cookies و Authorization
+    allow_origins=["https://qyt-tssco.onrender.com"],  # فقط هذا الدومين مسموح
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # -----------------------------
 # إعداد اتصال MongoDB
@@ -93,13 +114,11 @@ if __name__ == "__main__":
 
 
 # تحديد مجلد المشروع
-ROOT_DIR = Path(__file__).parent
 UPLOAD_DIR = ROOT_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # إنشاء الراوتر مع بادئة /api
-api_router = APIRouter(prefix="/api")
 
 # الآن نعرف الروت بعد إنشاء الراوتر
 @api_router.get("/test")
@@ -201,10 +220,6 @@ async def get_next_quote_number():
     return "1"
 
 # Routes
-@api_router.get("/")
-async def root():
-    return {"message": "Quote Management System API"}
-
 # Company routes
 @api_router.get("/company", response_model=CompanyInfo)
 async def get_company_info():
@@ -363,14 +378,7 @@ async def export_quote_pdf(quote_id: str):
     buffer = BytesIO()
     
     # Use basic canvas approach for pixel-perfect matching
-    from reportlab.pdfgen import canvas as pdf_canvas
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import mm
-    from reportlab.lib import colors as pdf_colors
-    from reportlab.pdfbase.pdfmetrics import registerFont
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.lib.utils import ImageReader
-    import textwrap
+
     
     # Create canvas
     c = pdf_canvas.Canvas(buffer, pagesize=A4)
